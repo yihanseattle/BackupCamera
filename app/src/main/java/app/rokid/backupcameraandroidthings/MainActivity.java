@@ -2,7 +2,8 @@ package app.rokid.backupcameraandroidthings;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.os.HandlerThread;
 
 /**
  * Skeleton of an Android Things activity.
@@ -25,11 +26,30 @@ import android.util.Log;
  */
 public class MainActivity extends Activity {
 
+    /**
+     * A Handler for running tasks in the background.
+     */
+    private Handler mCameraHandler;
+    /**
+     * An additional thread for running tasks that shouldn't block the UI.
+     */
+    private HandlerThread mCameraThread;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        Log.d("testingtesting", "yang jianyan is working!!!!");
+        // Creates new handlers and associated threads for camera and networking operations.
+        mCameraThread = new HandlerThread("CameraBackground");
+        mCameraThread.start();
+        mCameraHandler = new Handler(mCameraThread.getLooper());
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mCameraThread.quitSafely();
+    }
+
 }
